@@ -1,25 +1,13 @@
-use std::{fs::File, io::{Seek, SeekFrom, Read, BufWriter}, path::Path};
+use std::{fs::File, io::BufWriter, path::Path};
 
 use anyhow::Result;
 
-use minerdata::sprite::Sprite;
-use minerdata::cavern::Cavern;
+use minerdata::{sprite::Sprite, gamedata::GameData};
 
 fn main() -> Result<()> {
-    let mut file = File::open("ManicMiner.bin")?;
-    let mut buf = vec![0; 1024];
-    file.seek(SeekFrom::Start(0xb000))?;
+    let data = GameData::load("ManicMiner.bin")?;
 
-    let mut caverns = Vec::with_capacity(20);
-    for _ in 0..20 {
-        file.read_exact(&mut buf)?;
-        let cavern = Cavern::try_from(&buf[..])?;
-        caverns.push(cavern);
-    }
-
-    println!("Loaded {} caverns", caverns.len());
-
-    let sprites: Vec<_> = caverns.iter().flat_map(|c| &c.tile_sprites).collect();
+    let sprites: Vec<_> = data.caverns.iter().flat_map(|c| &c.tile_sprites).collect();
     export_sprites(sprites, "/tmp/newsprites.png")?;
 
     Ok(())
