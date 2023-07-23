@@ -2,17 +2,48 @@ use anyhow::Result;
 
 /// A ZX Spectrum color. Consists of an ink value 0-7, a paper
 /// value 0-7, and a boolean bright flag.
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct SpectrumColor {
     // The ink color index 0..7
-    ink: u8,
+    pub ink: u8,
     // The paper color index 0..7
-    paper: u8,
+    pub paper: u8,
     // The bright flag
-    bright: bool
+    pub bright: bool
+}
+
+pub enum SpectrumColorName {
+    Black,
+    Blue,
+    Red,
+    Magenta,
+    Green,
+    Cyan,
+    Yellow,
+    White
+}
+
+impl Into<u8> for SpectrumColorName {
+    fn into(self) -> u8 {
+        match self {
+            Self::Black => 0,
+            Self::Blue => 1,
+            Self::Red => 2,
+            Self::Magenta => 3,
+            Self::Green => 4,
+            Self::Cyan => 5,
+            Self::Yellow => 6,
+            Self::White => 7
+        }
+    }
 }
 
 impl SpectrumColor {
+
+    pub fn new(ink: SpectrumColorName, paper: SpectrumColorName, bright: bool) -> Self {
+        SpectrumColor{ ink: ink.into(), paper: paper.into(), bright }
+    }
+
     /// Converts a color into an rgba color value
     fn to_rgba(value: &u8, bright: &bool) -> Vec<u8> {
         let code = if *bright {
@@ -81,11 +112,12 @@ impl TryFrom<&String> for SpectrumColor {
     }
 }
 
-impl From<SpectrumColor> for u8 {
-  fn from(color: SpectrumColor) -> u8 {
+impl From<&SpectrumColor> for u8 {
+  fn from(color: &SpectrumColor) -> u8 {
     color.ink | (color.paper << 3) | if color.bright { 0b1000000 } else { 0 }
   }
 }
+
 
 
 #[cfg(test)]
@@ -94,9 +126,9 @@ mod tests {
 
   #[test]
   fn can_convert_to_u8() {
-    assert_eq!(u8::from(SpectrumColor { paper: 3, ink: 4, bright: true }), 0b1011100);
-    assert_eq!(u8::from(SpectrumColor { paper: 3, ink: 4, bright: false }), 0b0011100);
-    assert_eq!(u8::from(SpectrumColor { paper: 7, ink: 7, bright: true }), 0b1111111);
+    assert_eq!(u8::from(&SpectrumColor { paper: 3, ink: 4, bright: true }), 0b1011100);
+    assert_eq!(u8::from(&SpectrumColor { paper: 3, ink: 4, bright: false }), 0b0011100);
+    assert_eq!(u8::from(&SpectrumColor { paper: 7, ink: 7, bright: true }), 0b1111111);
   }
 
   #[test]

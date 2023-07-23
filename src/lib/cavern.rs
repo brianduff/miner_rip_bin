@@ -8,6 +8,24 @@ pub struct Cavern {
     pub layout: Layout,
     pub name: String,
     pub tile_sprites: Vec<Sprite>,
+    pub border_color: SpectrumColor,
+}
+
+impl Cavern {
+    pub fn get_bg_sprite_index(&self, char_x: usize, char_y: usize) -> Option<usize> {
+        let color = self.layout.get_cell_color(char_x, char_y);
+
+        for (i, s) in self.tile_sprites.iter().enumerate() {
+            if *color == s.color {
+                println!("({}, {}): {} - sprite index {}", char_x, char_y, u8::from(color), i);
+                return Some(i)
+            }
+        }
+
+        println!("({}, {}): {} - SPRITE NOT FOUND", char_x, char_y, u8::from(color));
+
+        None
+    }
 }
 
 impl TryFrom<&[u8]> for Cavern {
@@ -27,8 +45,9 @@ impl TryFrom<&[u8]> for Cavern {
             pos = end;
         }
 
+        let border_color = SpectrumColor::try_from(&bytes[627])?;
 
-        Ok(Cavern { layout, name, tile_sprites })
+        Ok(Cavern { layout, name, tile_sprites, border_color })
     }
 }
 
@@ -41,6 +60,13 @@ impl TryFrom<&[u8]> for Cavern {
 pub struct Layout {
     cells: Vec<SpectrumColor>
 }
+
+impl Layout {
+    fn get_cell_color(&self, char_x: usize, char_y: usize) -> &SpectrumColor {
+        &self.cells[(char_y * 32) + char_x]
+    }
+}
+
 
 impl TryFrom<&[u8]> for Layout {
     type Error = anyhow::Error;

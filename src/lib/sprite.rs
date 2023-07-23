@@ -6,7 +6,7 @@ pub struct Sprite {
     pixel_width: usize,
     pixel_height: usize,
     bytes: Vec<u8>,
-    color: SpectrumColor
+    pub color: SpectrumColor
 }
 
 impl Sprite {
