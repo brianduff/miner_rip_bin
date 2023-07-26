@@ -17,7 +17,6 @@ impl Cavern {
 
         for (i, s) in self.tile_sprites.iter().enumerate() {
             if *color == s.color {
-                println!("({}, {}): {} - sprite index {}", char_x, char_y, u8::from(color), i);
                 return Some(i)
             }
         }
